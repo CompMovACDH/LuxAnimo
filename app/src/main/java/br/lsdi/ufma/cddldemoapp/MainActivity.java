@@ -20,7 +20,9 @@
 
 package br.lsdi.ufma.cddldemoapp;
 
+import android.content.Context;
 import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -72,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
     EventBus eb;
 
+    private String sensorName;
+    private SensorManager sensorManager;
+    private Sensor lightSensor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void configCDDL() {
 
-        String host = CDDL.startMicroBroker();
+        //String host = CDDL.startMicroBroker();
+        String host = "broker.mqttdashboard.com";
 
         Connection connection = ConnectionFactory.createConnection();
         connection.setHost(host);
@@ -151,8 +158,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void configSpinner() {
 
-        List<Sensor> sensors = cddl.getInternalSensorList();
-        sensorNames = sensors.stream().map(Sensor::getName).collect(Collectors.toList());
+        //List<Sensor> sensors = cddl.getInternalSensorList();
+        List<String> sensorNames = new ArrayList<>();
+        String sm = Context.SENSOR_SERVICE;
+        SensorManager sensorManager = (SensorManager) getSystemService(sm);
+
+        Sensor someSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+
+        if (null != someSensor) {
+            sensorNames.add(someSensor.getName());
+        }
+        //sensorNames = sensors.stream().map(Sensor::getName).collect(Collectors.toList());
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, sensorNames);
         spinner = findViewById(R.id.spinner);
@@ -178,13 +194,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startSelectedSensor() {
-
-        String selectedSensor = spinner.getSelectedItem().toString();
-        cddl.startSensor(selectedSensor);
-
-        subscriber.subscribeServiceByName(selectedSensor);
-        currentSensor = selectedSensor;
-
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        sensorName = lightSensor.getName();
+        cddl.startSensor(sensorName);
+        subscriber.subscribeServiceByName(sensorName);
+        currentSensor = sensorName;
         cddl.startLocationSensor();
     }
 
