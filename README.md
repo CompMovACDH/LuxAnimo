@@ -1,1 +1,1 @@
-# CDDLDemoApp
+# CDDL LuxAnimo DemoApp
