@@ -22,6 +22,7 @@ package br.lsdi.ufma.cddldemoapp;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -98,8 +99,10 @@ public class PubSubActivity extends AppCompatActivity {
     public void on(MessageEvent event) {
         Object[] valor = event.getMessage().getServiceValue();
         mensagensTextView.setText((String) valor[0]);
+        //long valor = event.getMessage().getMeasurementTime();
+        //mensagensTextView.setText(date);
+        //String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", valor).toString();
     }
-
 
     private void configCDDL() {
         cddl = CDDL.getInstance();

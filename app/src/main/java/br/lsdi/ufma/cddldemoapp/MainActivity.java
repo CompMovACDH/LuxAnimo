@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private void configCDDL() {
 
         //String host = CDDL.startMicroBroker();
-        String host = "broker.mqttdashboard.com";
+        String host = "broker.hivemq.com";
 
         Connection connection = ConnectionFactory.createConnection();
         connection.setHost(host);
@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
         subscriber = SubscriberFactory.createSubscriber();
         subscriber.addConnection(cddl.getConnection());
         subscriber.setSubscriberListener(this::onMessage);
-
     }
 
 	private void onMessage(Message message) {
