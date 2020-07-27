@@ -121,16 +121,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void onMessage(Message message) {
+	private void onMessage(Message message) {
 
         handler.post(() -> {
-            Object[] valor = message.getServiceValue();
-            listViewMessages.add(0, StringUtils.join(valor, ", "));
+            //Object[] lux = message.getServiceValue();
+            long valor = message.getMeasurementTime();
+            //String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", valor).toString();
+            listViewMessages.add(0, StringUtils.join(valor, " "));
             listViewAdapter.notifyDataSetChanged();
         });
 
     }
-
+	
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void on(MessageEvent event) {
     }
