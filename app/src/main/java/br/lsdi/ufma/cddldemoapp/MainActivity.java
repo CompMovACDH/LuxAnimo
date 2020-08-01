@@ -26,6 +26,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText filterEditText;
 
     private CDDL cddl;
+    private String host = "broker.hivemq.com";
     private String email = "lcmuniz@lsdi.ufma.br";
     private List<String> sensorNames;
     private String currentSensor;
@@ -82,14 +84,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         eb = EventBus.builder().build();
         eb.register(this);
-
         if (savedInstanceState == null) {
             configCDDL();
         }
-
         configSpinner();
         configListView();
         configStartButton();
@@ -99,42 +98,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configCDDL() {
-
-        //String host = CDDL.startMicroBroker();
-        String host = "broker.hivemq.com";
-
         Connection connection = ConnectionFactory.createConnection();
         connection.setHost(host);
         connection.setClientId(email);
         connection.connect();
-
         cddl = CDDL.getInstance();
         cddl.setConnection(connection);
         cddl.setContext(this);
-
         cddl.startService();
         cddl.startCommunicationTechnology(CDDL.INTERNAL_TECHNOLOGY_ID);
-
         subscriber = SubscriberFactory.createSubscriber();
         subscriber.addConnection(cddl.getConnection());
         subscriber.setSubscriberListener(this::onMessage);
     }
 
 	private void onMessage(Message message) {
-
         handler.post(() -> {
-            //Object[] lux = message.getServiceValue();
-            long valor = message.getMeasurementTime();
-            //String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", valor).toString();
-            listViewMessages.add(0, StringUtils.join(valor, " "));
+            Object[] valorOne = message.getServiceValue();
+            /*listViewMessages.add(0, StringUtils.join(valorOne, ", "));
+            listViewAdapter.notifyDataSetChanged();*/
+
+            long valorTwo = message.getMeasurementTime();
+            String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", valorTwo).toString();
+            //listViewMessages.add(0, StringUtils.join(date, " "));
+
+            listViewMessages.add(0, StringUtils.join(valorOne, ", "));
+            listViewMessages.add(1, date);
             listViewAdapter.notifyDataSetChanged();
         });
-
     }
 	
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void on(MessageEvent event) {
-    }
+    public void on(MessageEvent event) {}
 
     @Override
     protected void onDestroy() {
@@ -158,23 +153,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configSpinner() {
-
         //List<Sensor> sensors = cddl.getInternalSensorList();
         List<String> sensorNames = new ArrayList<>();
         String sm = Context.SENSOR_SERVICE;
         SensorManager sensorManager = (SensorManager) getSystemService(sm);
-
         Sensor someSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-
         if (null != someSensor) {
             sensorNames.add(someSensor.getName());
         }
         //sensorNames = sensors.stream().map(Sensor::getName).collect(Collectors.toList());
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, sensorNames);
         spinner = findViewById(R.id.spinner);
         spinner.setAdapter(adapter);
-
     }
 
     private void configListView() {
@@ -185,16 +175,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configStartButton() {
-
         Button button = findViewById(R.id.start_button);
         button.setOnClickListener(e -> {
             stopCurrentSensor();
             startSelectedSensor();
         });
-
     }
 
-    private void startSelectedSensor() {
+    /*private void startSelectedSensor() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         sensorName = lightSensor.getName();
@@ -202,6 +190,14 @@ public class MainActivity extends AppCompatActivity {
         subscriber.subscribeServiceByName(sensorName);
         currentSensor = sensorName;
         cddl.startLocationSensor();
+    }*/
+
+    private void startSelectedSensor() {
+        String selectedSensor = spinner.getSelectedItem().toString();
+        cddl.setFilter("select * from Message where cast(serviceValue[0], int) < 5");
+        cddl.startSensor(selectedSensor);
+        subscriber.subscribeServiceByName(selectedSensor);
+        currentSensor = selectedSensor;
     }
 
     private void stopCurrentSensor() {
@@ -224,14 +220,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configFilterButton() {
-
         filterEditText = findViewById(R.id.filter_edittext);
-
         Button button = findViewById(R.id.filter_button);
         button.setOnClickListener(e -> {
             if (filterEditText.getText().toString().equals(""))
                 return;
-
             if (filtering) {
                 subscriber.clearFilter();
                 button.setText(R.string.filter_button_label);
@@ -241,9 +234,6 @@ public class MainActivity extends AppCompatActivity {
                 button.setText(R.string.clear_filter_button_label);
             }
             filtering = !filtering;
-
         });
-
     }
-
 }

@@ -85,10 +85,8 @@ public class PubSubActivity extends AppCompatActivity {
     private void configSubscriber() {
         sub = SubscriberFactory.createSubscriber();
         sub.addConnection(cddl.getConnection());
-
         sub.subscribeServiceByName(MY_SERVICE);
         sub.setSubscriberListener(this::onMessage);
-
     }
 
     private void onMessage(Message message) {
@@ -99,9 +97,6 @@ public class PubSubActivity extends AppCompatActivity {
     public void on(MessageEvent event) {
         Object[] valor = event.getMessage().getServiceValue();
         mensagensTextView.setText((String) valor[0]);
-        //long valor = event.getMessage().getMeasurementTime();
-        //mensagensTextView.setText(date);
-        //String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", valor).toString();
     }
 
     private void configCDDL() {
@@ -135,5 +130,4 @@ public class PubSubActivity extends AppCompatActivity {
         msg.setServiceValue(mensagemEditText.getText().toString());
         pub.publish(msg);
     }
-
 }
