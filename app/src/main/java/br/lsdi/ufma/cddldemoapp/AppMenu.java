@@ -27,24 +27,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class AppMenu {
-
     private static final int SUBSCRIBE_SENSOR_MENU_ID = Menu.FIRST;
     private static final int PUB_SUB_MESSAGE_MENU_ID = Menu.FIRST + 1;
-
     private static AppMenu appMenu;
-
     public void setMenu(Menu menu) {
         menu.add(android.view.Menu.NONE, SUBSCRIBE_SENSOR_MENU_ID, android.view.Menu.NONE, R.string.subscrever_sensores);
-        menu.add(android.view.Menu.NONE, PUB_SUB_MESSAGE_MENU_ID, android.view.Menu.NONE, R.string.pub_sub_mensagem);
-    }
-
+        menu.add(android.view.Menu.NONE, PUB_SUB_MESSAGE_MENU_ID, android.view.Menu.NONE, R.string.pub_sub_mensagem);    }
     public static AppMenu getInstance() {
         if (appMenu == null) {
             appMenu = new AppMenu();
         }
         return appMenu;
     }
-
     public void setMenuItem(Context ctx, MenuItem item) {
         switch (item.getItemId()) {
             case SUBSCRIBE_SENSOR_MENU_ID:

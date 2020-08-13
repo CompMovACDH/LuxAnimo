@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CDDL cddl;
     private String host = "broker.hivemq.com";
+    //private String host = "1ed3c2d3639945c6976c300364494caa.env-1.hivemq.cloud";
     private String email = "lcmuniz@lsdi.ufma.br";
     private List<String> sensorNames;
     private String currentSensor;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private String sensorName;
     private SensorManager sensorManager;
     private Sensor lightSensor;
+    private Sensor acelerometro;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,16 +117,14 @@ public class MainActivity extends AppCompatActivity {
 	private void onMessage(Message message) {
         handler.post(() -> {
             Object[] valorOne = message.getServiceValue();
-            /*listViewMessages.add(0, StringUtils.join(valorOne, ", "));
-            listViewAdapter.notifyDataSetChanged();*/
-
-            long valorTwo = message.getMeasurementTime();
+            listViewMessages.add(0, StringUtils.join(valorOne, ", "));
+            listViewAdapter.notifyDataSetChanged();
+            /*long valorTwo = message.getMeasurementTime();
             String date = DateFormat.format("dd-MM-yyyy hh:mm:ss", valorTwo).toString();
             //listViewMessages.add(0, StringUtils.join(date, " "));
-
             listViewMessages.add(0, StringUtils.join(valorOne, ", "));
             listViewMessages.add(1, date);
-            listViewAdapter.notifyDataSetChanged();
+            listViewAdapter.notifyDataSetChanged()*/;
         });
     }
 	
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startSelectedSensor() {
         String selectedSensor = spinner.getSelectedItem().toString();
-        cddl.setFilter("select * from Message where cast(serviceValue[0], int) < 5");
+        cddl.setFilter("select * from Message where cast(serviceValue[0], int) <= 0");
         cddl.startSensor(selectedSensor);
         subscriber.subscribeServiceByName(selectedSensor);
         currentSensor = selectedSensor;
