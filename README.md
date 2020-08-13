@@ -2,7 +2,7 @@
 
 Projeto denomindao LuxAnimo.
 
-Desenvolvimento de aplicação que usa o sensor de luminosidade do celular para definição da padrões.
+Desenvolvimento de aplicação que usa o sensor de luminosidade do celular para definição de padrões.
 
 Alunos:
 Alfraino Diniz,
